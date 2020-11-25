@@ -23,6 +23,7 @@ class ProductCollectionViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.viewSetup()
+        NotificationCenter.default.addObserver(self, selector: #selector(rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
     }
     
     private func viewSetup(){
@@ -37,6 +38,15 @@ class ProductCollectionViewController: UIViewController {
             layout.delegate = self
         }
         self.productCollectionView.reloadAsync()
+    }
+    
+    
+    @objc func rotated() {
+        self.productCollectionView.reloadAsync()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver( #selector(rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
     }
 
 
@@ -61,7 +71,6 @@ extension ProductCollectionViewController: UICollectionViewDelegate, UICollectio
             }
         }
     }
-    
     
 }
 

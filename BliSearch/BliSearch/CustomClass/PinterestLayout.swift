@@ -40,10 +40,15 @@ class PinterestLayout: UICollectionViewLayout {
   
   override func prepare() {
     // 1. Only calculate once
-    guard cache.isEmpty == true, let collectionView = collectionView else {
-      return
-    }
+    guard cache.isEmpty == true || cache.isEmpty == false, let collectionView = collectionView else {
+            return
+        }
     // 2. Pre-Calculates the X Offset for every column and adds an array to increment the currently max Y Offset for each column
+    
+    if UIWindow.isLandscape
+    {
+        numberOfColumns = 3
+    }
     let columnWidth = contentWidth / CGFloat(numberOfColumns)
     var xOffset = [CGFloat]()
     for column in 0 ..< numberOfColumns {
