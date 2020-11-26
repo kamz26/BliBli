@@ -16,6 +16,7 @@ class BliProductViewController: UIViewController {
     
     //MARK: - Variables
     var parentVc:ProductSearchBaseVc!
+    var spinner: UIActivityIndicatorView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,9 +61,19 @@ extension BliProductViewController: UITableViewDelegate, UITableViewDataSource,U
         
         if indexPath.row == self.parentVc.productData.count - 1{
            //Get More Product Data
+            addIndicator()
             parentVc.getMoreData()
         }
         return cell
+    }
+    
+    func addIndicator(){
+        spinner = UIActivityIndicatorView(style: .gray)
+        spinner.startAnimating()
+        spinner.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: productsTableView.bounds.width, height: CGFloat(44))
+        
+        self.productsTableView.tableFooterView = spinner
+        self.productsTableView.tableFooterView?.isHidden = false
     }
     
     
