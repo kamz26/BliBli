@@ -15,6 +15,7 @@ class ProductCollectionViewController: UIViewController {
     
     var parentVc:ProductSearchBaseVc!
     var isPageRefreshing:Bool = false
+    private let footerView = UIActivityIndicatorView(style: .gray)
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -24,6 +25,7 @@ class ProductCollectionViewController: UIViewController {
         super.viewWillAppear(animated)
         self.viewSetup()
         NotificationCenter.default.addObserver(self, selector: #selector(rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
+        
     }
     
     private func viewSetup(){
@@ -33,11 +35,17 @@ class ProductCollectionViewController: UIViewController {
         parentVc = self.parent as? ProductSearchBaseVc
         parentVc.reloadDelegate = self
         
+        bottomViewSetup()
         
         if let layout = productCollectionView?.collectionViewLayout as? PinterestLayout {
             layout.delegate = self
         }
         self.productCollectionView.reloadAsync()
+    }
+    
+    private func bottomViewSetup(){
+        productCollectionView.register(CollectionViewFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: "Footer")
+        (productCollectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.footerReferenceSize = CGSize(width: productCollectionView.frame.size.width, height: 50)
     }
     
     
@@ -61,6 +69,7 @@ extension ProductCollectionViewController: UICollectionViewDelegate, UICollectio
         let cell = collectionView.dequeueReusableCell(with: ProductCollectionViewCell.self, for: indexPath)
         cell.configureCell(with: self.parentVc.productData[indexPath.row])
         return cell
+        
     }
    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -78,7 +87,19 @@ extension ProductCollectionViewController: UICollectionViewDelegate, UICollectio
 //MARK: - PINTEREST LAYOUT DELEGATE
 extension ProductCollectionViewController : PinterestLayoutDelegate {
     func collectionView(_ collectionView: UICollectionView, heightForPhotoAtIndexPath indexPath:IndexPath) -> CGFloat {
-        return parentVc.productImages[indexPath.item].size.height
+        return  parentVc.productImages[indexPath.item].size.height
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView{
+        
+        if kind == UICollectionView.elementKindSectionFooter {
+            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "Footer", for: indexPath)
+            footer.addSubview(footerView)
+            footerView.frame = CGRect(x: 0, y: 0, width: collectionView.bounds.width, height: 50)
+            return footer
+        }
+        return UICollectionReusableView()
+        
     }
 }
 
@@ -90,4 +111,14 @@ extension ProductCollectionViewController:ReloadProtocol{
 }
 
 
+
+public class CollectionViewFooterView: UICollectionReusableView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
 

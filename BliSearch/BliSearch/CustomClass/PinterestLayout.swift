@@ -91,11 +91,66 @@ class PinterestLayout: UICollectionViewLayout {
         visibleLayoutAttributes.append(attributes)
       }
     }
+    
+    
+    var allAttributes = super.layoutAttributesForElements(in: rect) ?? []
+
+    // re-add the header when disappearing
+    var headerIsVisible = false
+
+    // iterate
+    for attributes in allAttributes {
+
+        if attributes.representedElementKind == UICollectionView.elementKindSectionFooter {
+
+            // update header
+//            self.updateHeaderAttributes(attributes)
+
+            headerIsVisible = true
+        }
+    }
+
+    // Flow layout will remove items from the list if they are supposed to be off screen, so we add them
+    // back in in those cases.
+    if !headerIsVisible {
+        let header = self.layoutAttributesForSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter , at: IndexPath(item: allAttributes.count, section: 0))
+
+        allAttributes.append(header!)
+    }
+    visibleLayoutAttributes.append(contentsOf: allAttributes)
+    
     return visibleLayoutAttributes
   }
   
-  override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-    return cache[indexPath.item]
-  }
-  
+    override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        return cache[indexPath.item]
+    }
+    
+    // MARK - Stick Header to Top Left
+    func updateHeaderAttributes(_ attributes: UICollectionViewLayoutAttributes) {
+        
+        // update frame
+        attributes.frame = CGRect(origin: CGPoint(x: (self.collectionView?.contentOffset.x)!, y: 0), size: attributes.size)
+    }
+    
+    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        return true
+    }
+    
+    override func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        
+        let attributes = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: elementKind, with: indexPath)
+        attributes.size = CGSize(width: (self.collectionView?.bounds.size.width)!, height: 50)
+        
+        // set origin
+        if elementKind == UICollectionView.elementKindSectionFooter {
+            self.updateHeaderAttributes(attributes)
+        }
+        
+        return attributes
+    }
+    
+    
+   
+    
 }
